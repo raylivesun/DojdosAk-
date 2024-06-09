@@ -1,0 +1,70 @@
+// Let’s go through this function piece by piece to understand what is going on. 
+// We’ll start with the argument declarations:
+
+  input Real x         "Independent variable";
+  input Real ybar[:,2] "Interpolation data";
+  output Real y        "Dependent variable";
+
+/*
+The input argument x represents the value of the independent variable we wish 
+to use for interpolating our function, the input argument ybar represents the 
+interpolation data and the output argument y represents the interpolated value. 
+The next part of the function contains:
+
+*/
+
+protected
+  Integer i;
+  Integer n = size(ybar,1) "Number of interpolation points";
+  Real p;
+
+/*
+The part of our function includes the declaration of various protected variables. 
+As we saw in our Polynomial Evaluation example, these are effectively intermediate 
+variables used internally by the function. In this case, i is going to be used as 
+an index variable, n is the number of data points in our interpolation data and p 
+represents a weight used in our interpolation scheme.
+
+With all the variable declarations out of the way, we can now implement the algorithm 
+section of our function:
+
+
+*/
+
+algorithm
+  assert(x>=ybar[1,1], "Independent variable must be greater than or equal to "+String(ybar[1,1]));
+  assert(x<=ybar[n,1], "Independent variable must be less than or equal to "+String(ybar[n,1]));
+  i := 1;
+  while x>=ybar[i+1,1] loop
+    i := i + 1;
+  end while;
+  p := (x-ybar[i,1])/(ybar[i+1,1]-ybar[i,1]);
+  y := p*ybar[i+1,2]+(1-p)*ybar[i,2];
+
+/*
+The first two statements are assert statements that verify that the value of x is 
+within the interval
+
+. If not, an error message will be generated explaining why the interpolation 
+failed.
+
+The rest of the function searches for the value of i such that
+
+. Once that value of i has been identified, the interpolated value is computed 
+as simply:
+
+where
+Test Case¶
+
+Now, let’s test this function by using it from within a model. As a simple test case, 
+let’s integrate the value returned by the interpolation function. We’ll use the 
+following data as the basis for our function:
+	
+0 	0
+2 	0
+4 	2
+6 	0
+8 	0
+
+If we plot this data, we see that our interpolated function looks like this:
+*/
